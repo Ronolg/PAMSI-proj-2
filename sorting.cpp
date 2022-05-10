@@ -3,7 +3,7 @@
 #include <algorithm>
 
 
-const long long int size = 2*262144; //rozmiar sortowanej tablicy
+const long long int size = 100000; //rozmiar sortowanej tablicy
 //const int max_id = 1010291; //id ostatniego elementu w danych
 
 class Movie
@@ -40,7 +40,6 @@ struct Bucket
     Movie* movies; // data
 
 };
-
 
 Movie* read(Movie *array)
 {
@@ -298,36 +297,46 @@ void merge(Movie *merged_array, Movie* array_left, Movie* array_right, int sizeL
     };
 }
 
-Movie* divideArray(Movie *array, int divided_size , bool which_half /*0 -> 1st half, 1 -> 2nd half*/)
+Movie* divideArray(Movie *array, int divided_size, bool which_half /*0 -> 1st half, 1 -> 2nd half*/)
 {
-    Movie* divided_array = new Movie[divided_size];
+    Movie* divided_array = new Movie[divided_size+1];
+    int idx; // start of second half
+
+    if(divided_size%2!=0)
+        idx = divided_size - 1;
+    else 
+        idx = divided_size;
 
     if(!which_half)
     {
-        for(int i=0; i<divided_size; i++)
+        // 1st half
+        for(int i=0; i<divided_size; i++)                
             divided_array[i] = array[i];
     }
     else
     {
+        // 2nd half
         for(int i=0; i<divided_size; i++)
-            divided_array[i] = array[divided_size+i];
+            divided_array[i] = array[idx+i];
     }
-
     
     return divided_array;
 }   
 
 void mergeSort(Movie *array, int array_size)
 {
+    
     int leftSize = array_size/2;
     int rightSize = array_size/2;
+  
+    if(array_size%2!=0)//check if array size is an odd number. If it is right "half" will be longer by one element
+        rightSize++;
 
     Movie* leftHalf = divideArray(array, leftSize, 0);
     Movie* rightHalf = divideArray(array, rightSize, 1);
     
     if(array_size<2)
         return;
-
 
     mergeSort(leftHalf, leftSize);
     mergeSort(rightHalf, rightSize);

@@ -364,30 +364,30 @@ int main()
 
     //std::cout << "Read time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << " microseconds"<< std::endl;
     
-
+/* 
     for(int i=0;i<size; i++) //print array (unsorted)
         std::cout<< array[i].getRaiting() <<" ";
 
     std::cout << std::endl;
-    std::cout << std::endl;
+    std::cout << std::endl; */
  
-    //std::chrono::steady_clock::time_point begin_sort = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point begin_sort = std::chrono::steady_clock::now();
 
     quickSort(array, 0, size-1);
     //bucketSort(array);
     //mergeSort(array,size);
 
-    //std::chrono::steady_clock::time_point end_sort = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point end_sort = std::chrono::steady_clock::now();
 
-    for(int i=0;i<size; i++) //print sorted array
+ /*    for(int i=0;i<size; i++) //print sorted array
         std::cout<< array[i].getRaiting() <<" ";
 
-    std::cout << std::endl;
+    std::cout << std::endl; */
 
-    /* std::cout <<"Mean: " << mean(array) << std::endl;
+    std::cout <<"Mean: " << mean(array) << std::endl;
     std::cout << "Avr: " << avarage(array) << std::endl;
     std::cout << "Sorting time: " << std::chrono::duration_cast<std::chrono::microseconds>(end_sort - begin_sort).count() << " microseconds"<< std::endl;
-  */
+  
     delete[] array; 
 
     return 0;

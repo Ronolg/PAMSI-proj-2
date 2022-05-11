@@ -3,7 +3,7 @@
 #include <chrono>
 
 
-long long int size = 3; //rozmiar sortowanej tablicy
+long long int size = 20; //size of main array
 
 class Movie
 {
@@ -364,12 +364,13 @@ int main()
 
     //std::cout << "Read time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << " microseconds"<< std::endl;
     
-/* 
+    std::cout << "Unsorted array: "<<std::endl;
+ 
     for(int i=0;i<size; i++) //print array (unsorted)
         std::cout<< array[i].getRaiting() <<" ";
 
     std::cout << std::endl;
-    std::cout << std::endl; */
+    std::cout << std::endl; 
  
     std::chrono::steady_clock::time_point begin_sort = std::chrono::steady_clock::now();
 
@@ -379,10 +380,12 @@ int main()
 
     std::chrono::steady_clock::time_point end_sort = std::chrono::steady_clock::now();
 
- /*    for(int i=0;i<size; i++) //print sorted array
+    std::cout << "Sorted array: "<<std::endl;
+
+    for(int i=0;i<size; i++) //print sorted array
         std::cout<< array[i].getRaiting() <<" ";
 
-    std::cout << std::endl; */
+    std::cout << std::endl; 
 
     std::cout <<"Mean: " << mean(array) << std::endl;
     std::cout << "Avr: " << avarage(array) << std::endl;

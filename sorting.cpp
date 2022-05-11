@@ -131,26 +131,8 @@ Movie* read(Movie *array)
             raiting_read=-1;
             quotemark_count=0;
  
-
-            
-            //std::cout << "Id: " << array[i].getId()<< std::endl;
-            //std::cout << "i: " << i << std::endl; 
-
-
-             
-            /* std::cout << "id_read: "<< id_read <<std::endl;
-            std::cout << "raiting_read: "<< raiting_read <<std::endl;
-
-            std::cout << std::endl;
-
-            std::cout << "id_array: "<< array[i].getId()<<std::endl;
-            std::cout << "raiting_array: "<< array[i].getRaiting() <<std::endl;
-
-            std::cout << "===============================" <<std::endl;
-            */    
             i++;
             id_string.clear();
-            //std::cout << "i " << i <<std::endl;
 
         };
 
@@ -356,13 +338,13 @@ int main()
 {
     Movie *array = new Movie[size];
     
-    //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now(); //gets time when reading started
+    std::chrono::steady_clock::time_point begin_read = std::chrono::steady_clock::now(); //gets time when reading started
     
     read(array);
     
-    //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now(); //gets time when reading is finished
+    std::chrono::steady_clock::time_point end_read = std::chrono::steady_clock::now(); //gets time when reading is finished
 
-    //std::cout << "Read time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << " microseconds"<< std::endl;
+    std::cout << "Read time: " << std::chrono::duration_cast<std::chrono::microseconds>(end_read - begin_read).count() << " microseconds"<< std::endl;
     
     std::cout << "Unsorted array: "<<std::endl;
  
@@ -374,9 +356,10 @@ int main()
  
     std::chrono::steady_clock::time_point begin_sort = std::chrono::steady_clock::now();
 
-    quickSort(array, 0, size-1);
+
+    //quickSort(array, 0, size-1);
     //bucketSort(array);
-    //mergeSort(array,size);
+    mergeSort(array,size);
 
     std::chrono::steady_clock::time_point end_sort = std::chrono::steady_clock::now();
 

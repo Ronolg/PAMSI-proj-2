@@ -1,10 +1,9 @@
 #include <iostream>
 #include <fstream>
-#include <algorithm>
+#include <chrono>
 
 
-const long long int size = 100000; //rozmiar sortowanej tablicy
-//const int max_id = 1010291; //id ostatniego elementu w danych
+long long int size = 3; //rozmiar sortowanej tablicy
 
 class Movie
 {
@@ -60,15 +59,18 @@ Movie* read(Movie *array)
 
     if(file.is_open())
     {
-        getline(file,line_skipped); // skip first line: ",movie,rating"
+        getline(file,line_skipped); // skip first line: ",movie,rating"S
         
         while(i<size && !file.eof())
         {   
+            // reading id
+            
             character = file.get();
+
 
             if(character<=57 && character>47) // check whether read character is a number
             {    
-                while(character !=',')//reading id as a string
+                while(character !=',')//reading id as a string 
                 {
                     id_string+=character;
                     character = file.get(); 
@@ -82,20 +84,21 @@ Movie* read(Movie *array)
             
             character = file.get();
 
+
             // reading title and raiting
-            while(!raiting_found && character!='\n' && !next)
+            while(!raiting_found && character!='\n' && !next && !file.eof())
             {
                 
                 //character = file.get();
                 
-                if(character == '"') 
+                if(character == '"') // title is put into " title ", when comma occurs in a title 
                     quotemark_count++; //when " is found, count it 
                 
 
                 if(character==',' && quotemark_count!=1 && !next)
                 {
                     character = file.get();
-                    if(character<=57 && character>47)
+                    if(character<=57 && character>47) // check if character is a number (based on ASCII table)
                     {
                         file >> raiting_string;
                         raiting_read = std::stod(character+raiting_string);
@@ -111,25 +114,15 @@ Movie* read(Movie *array)
                     character = file.get();
             }
             
+
             if(raiting_found && id_read!=-1)
             {  
-                while(i>0 && array[i-1].getRaiting()==-1)
-                    i--;
+                while(i>0 && array[i-1].getRaiting()==-1) // check if in array are elements with wrong form ( raiting or id eguals -1) and then treat it  
+                    i--;                                  // as a free spot for another element with correct form.
                 
                 array[i].setId(id_read);
                 array[i].setRaiting(raiting_read);
                 
-              /*   if(i>0 && array[i-1].getRaiting()==-1)
-                { 
-                    array[i-1].setId(id_read);
-                    array[i-1].setRaiting(raiting_read);
-                    i--;
-                }
-                else
-                {
-                    array[i].setId(id_read);
-                    array[i].setRaiting(raiting_read);
-                } */
             }
             
             raiting_found=0;
@@ -154,18 +147,25 @@ Movie* read(Movie *array)
             std::cout << "raiting_array: "<< array[i].getRaiting() <<std::endl;
 
             std::cout << "===============================" <<std::endl;
-  */    
+            */    
             i++;
             id_string.clear();
+            //std::cout << "i " << i <<std::endl;
+
         };
 
+        if(i<size)//when created array is bigger than numbers of correct elements in file. In "projekt2_dane.csv" there are approx. 962 903 elements with correct form. 
+        {
+            i--;
+            size = i;
+        }
     }
     file.close();
 
     return array;
 }
 
-void swap(Movie& a, Movie& b)
+void swap(Movie& a, Movie& b) // swaps 2 objects of Movie
 {
     Movie tmp = a;
     a = b;
@@ -178,6 +178,7 @@ void quickSort(Movie *array, int first, int last)
     int pivot=first;
     int count = 0;
 
+    // determine value of pivot
     for (int k = first + 1; k <= last; k++) 
     {
         if (array[k].getRaiting() <= array[pivot].getRaiting())
@@ -217,9 +218,9 @@ void quickSort(Movie *array, int first, int last)
     }
 }
 
-void bucketSort_object(Movie *array)
+void bucketSort(Movie *array)
 {
-    Bucket bucket_array[10];
+    Bucket bucket_array[10]; 
     int max_raiting=10;
     int default_size = size/5;
     
@@ -234,23 +235,24 @@ void bucketSort_object(Movie *array)
         
         if(array[i].getRaiting()<=10 && array[i].getRaiting()>=0)
         {
-            if(bucket_array[(int)array[i].getRaiting()-1].size >= bucket_array[(int)array[i].getRaiting()-1].capacity)
-            {
+            if(bucket_array[(int)array[i].getRaiting()-1].size >= bucket_array[(int)array[i].getRaiting()-1].capacity) // if there is not enough space in a bucket for next element,
+            {                                                                                                          // then allocate more memory for this bucket 
                 Movie* copy = bucket_array[(int)array[i].getRaiting()-1].movies; // create a copy of right bucket
 
-                bucket_array[(int)array[i].getRaiting()-1].capacity *= 2;
-                bucket_array[(int)array[i].getRaiting()-1].movies = new Movie[bucket_array[(int)array[i].getRaiting()-1].capacity];
+                bucket_array[(int)array[i].getRaiting()-1].capacity *= 2; // increase capacity of the bucket 
+                bucket_array[(int)array[i].getRaiting()-1].movies = new Movie[bucket_array[(int)array[i].getRaiting()-1].capacity]; // allocate more memory for the backet, based on value of capacity
 
-                for(int k=0; k<bucket_array[(int)array[i].getRaiting()-1].size; k++)
+                for(int k=0; k<bucket_array[(int)array[i].getRaiting()-1].size; k++) 
                     bucket_array[(int)array[i].getRaiting()-1].movies[k] = copy[k];
                    
                 delete[] copy;
             }
-            bucket_array[(int)array[i].getRaiting()-1].movies[bucket_array[(int)array[i].getRaiting()-1].size] = array[i];
+            bucket_array[(int)array[i].getRaiting()-1].movies[bucket_array[(int)array[i].getRaiting()-1].size] = array[i]; // put element in right bucket
             bucket_array[(int)array[i].getRaiting()-1].size++;
         }
     }
   
+    // sort the array
     int idx=0;
     for(int i = 0; i<max_raiting; i++)
         for(int j = 0; j<bucket_array[i].size; j++)
@@ -263,7 +265,7 @@ void bucketSort_object(Movie *array)
 
 }
 
-void merge(Movie *merged_array, Movie* array_left, Movie* array_right, int sizeLeft, int sizeRight)
+void merge(Movie *merged_array, Movie* array_left, Movie* array_right, int sizeLeft, int sizeRight) //merges two arrays into one (in sorted order)
 {
     int i = 0;
     int j = 0;
@@ -297,75 +299,95 @@ void merge(Movie *merged_array, Movie* array_left, Movie* array_right, int sizeL
     };
 }
 
-Movie* divideArray(Movie *array, int divided_size, bool which_half /*0 -> 1st half, 1 -> 2nd half*/)
-{
-    Movie* divided_array = new Movie[divided_size+1];
-    int idx; // start of second half
-
-    if(divided_size%2!=0)
-        idx = divided_size - 1;
-    else 
-        idx = divided_size;
-
-    if(!which_half)
-    {
-        // 1st half
-        for(int i=0; i<divided_size; i++)                
-            divided_array[i] = array[i];
-    }
-    else
-    {
-        // 2nd half
-        for(int i=0; i<divided_size; i++)
-            divided_array[i] = array[idx+i];
-    }
-    
-    return divided_array;
-}   
-
 void mergeSort(Movie *array, int array_size)
 {
-    
     int leftSize = array_size/2;
     int rightSize = array_size/2;
-  
+    
     if(array_size%2!=0)//check if array size is an odd number. If it is right "half" will be longer by one element
         rightSize++;
-
-    Movie* leftHalf = divideArray(array, leftSize, 0);
-    Movie* rightHalf = divideArray(array, rightSize, 1);
     
-    if(array_size<2)
+    Movie* leftHalf = new Movie[leftSize];
+    Movie* rightHalf = new Movie[rightSize];
+     
+    for(int i=0; i<leftSize; i++) // creating left sub array        
+        leftHalf[i] = array[i];
+
+    for(int i=0; i<rightSize; i++) // creating right sub array 
+        rightHalf[i] = array[array_size/2+i];
+    
+    if(array_size<2) 
         return;
 
     mergeSort(leftHalf, leftSize);
     mergeSort(rightHalf, rightSize);
     merge(array, leftHalf, rightHalf, leftSize, rightSize);
 
+    delete leftHalf;
+    delete rightHalf;
+
 } 
 
+double mean(Movie* array) // returns mean value of given array
+{
+    double mean;
 
+    if(size%2==0)
+        mean = (array[size/2].getRaiting() + array[size/2 - 1].getRaiting())/2;
+    else
+        mean = array[size/2].getRaiting();
+
+    return mean;
+
+}
+
+double avarage(Movie* array) // returns avarage value of given array
+{
+    long double sum = 0;
+
+    for(int i=0; i<size; i++)
+        sum+= (double)array[i].getRaiting();
+
+    return sum/size;
+
+}
 
 int main()
 {
     Movie *array = new Movie[size];
+    
+    //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now(); //gets time when reading started
+    
     read(array);
+    
+    //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now(); //gets time when reading is finished
 
-    for(int i=0;i<size; i++)
+    //std::cout << "Read time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << " microseconds"<< std::endl;
+    
+
+    for(int i=0;i<size; i++) //print array (unsorted)
         std::cout<< array[i].getRaiting() <<" ";
 
     std::cout << std::endl;
     std::cout << std::endl;
+ 
+    //std::chrono::steady_clock::time_point begin_sort = std::chrono::steady_clock::now();
 
-    //quickSort(array, 0, size-1);
-    //bucketSort_object(array);
-    mergeSort(array,size);
+    quickSort(array, 0, size-1);
+    //bucketSort(array);
+    //mergeSort(array,size);
 
-    for(int i=0;i<size; i++)
-        std::cout<< array[i].getRaiting() <<" ";//<< "id: " << array[i].getId() << " ";
+    //std::chrono::steady_clock::time_point end_sort = std::chrono::steady_clock::now();
+
+    for(int i=0;i<size; i++) //print sorted array
+        std::cout<< array[i].getRaiting() <<" ";
 
     std::cout << std::endl;
 
+    /* std::cout <<"Mean: " << mean(array) << std::endl;
+    std::cout << "Avr: " << avarage(array) << std::endl;
+    std::cout << "Sorting time: " << std::chrono::duration_cast<std::chrono::microseconds>(end_sort - begin_sort).count() << " microseconds"<< std::endl;
+  */
     delete[] array; 
 
     return 0;
